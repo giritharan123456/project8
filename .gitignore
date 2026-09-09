@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+client/dist/
+dist/
+
+# Logs
+*.log
+vite-error.log
+server/server.log
+server/server.err
+
+# Environment (secrets)
+.env
+server/.env
+*.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Stray temp files
+/0
