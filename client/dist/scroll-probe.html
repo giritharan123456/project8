@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8" /><title>scroll probe2</title></head>
+<body style="margin:0">
+<iframe id="f" src="/" width="1440" height="900" style="border:0;display:block"></iframe>
+<pre id="METRICS" style="padding:8px;font:12px monospace;white-space:pre-wrap">LOADED</pre>
+<script>
+  async function main() {
+    const f = document.getElementById('f');
+    await new Promise(r => f.addEventListener('load', r));
+    await new Promise(r => setTimeout(r, 5000));
+    const doc = f.contentDocument;
+    const win = f.contentWindow;
+    const d = doc.documentElement;
+    const se = doc.scrollingElement;
+    const seName = se ? se.tagName + (se.id ? '#' + se.id : '') + (typeof se.className === 'string' ? '.' + se.className.replace(/\s+/g, '.').replace(/\.+/g, '.') : '') : null;
+
+    const instant1 = (() => { try { win.scrollTo({ top: 700, left: 0, behavior: 'instant' }); } catch (e) { try { win.scrollTo(0, 700); } catch (e2) {} } return [win.scrollY, se && se.scrollTop]; })();
+
+    let directTop = null;
+    if (se) { se.scrollTop = 700; directTop = se.scrollTop; }
+
+    const fixedBlocks = [];
+    const scrollContainers = [];
+    const all = doc.querySelectorAll('*');
+    const w = win.innerWidth, h = win.innerHeight;
+    all.forEach(el => {
+      if (!(el instanceof win.HTMLElement)) return;
+      const cs = win.getComputedStyle(el);
+      if (cs.position === 'fixed') {
+        const r = el.getBoundingClientRect();
+        if (r.width >= w * 0.8 && r.height >= h * 0.8) {
+          fixedBlocks.push({ sel: el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.replace(/\s+/g, '.').slice(0, 120) : ''), pe: cs.pointerEvents, z: cs.zIndex, top: Math.round(r.top), h: Math.round(r.height) });
+        }
+      }
+      if (/(auto|scroll|hidden)/.test(cs.overflowY) && cs.position !== 'fixed') {
+        const r = el.getBoundingClientRect();
+        if (r.height >= h * 0.85 && r.top <= 2) {
+          scrollContainers.push({ sel: el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.replace(/\s+/g, '.').slice(0, 120) : ''), oy: cs.overflowY, h: Math.round(r.height), sh: el.scrollHeight });
+        }
+      }
+    });
+
+    const out = {
+      scrollingElement: seName,
+      scrollBehavior: win.getComputedStyle(d).scrollBehavior,
+      htmlOverflowY: win.getComputedStyle(d).overflowY,
+      instantAfter: instant1,
+      directScrollTopSet: directTop,
+      scrollYNow: win.scrollY,
+      docSH: d.scrollHeight, docCH: d.clientHeight,
+      fixedBlocks: fixedBlocks.slice(0, 8),
+      scrollContainers: scrollContainers.slice(0, 8),
+      rootStyle: doc.getElementById('root') ? (w2 => ({ h: w2.height, oy: w2.overflowY, pos: w2.position }))(win.getComputedStyle(doc.getElementById('root'))) : null
+    };
+    document.getElementById('METRICS').textContent = JSON.stringify(out, null, 2);
+  }
+  main();
+</script>
+</body>
+</html>

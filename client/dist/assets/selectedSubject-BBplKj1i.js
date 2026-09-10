@@ -1,0 +1,1 @@
+const t="chemquest:selectedSubject:v1";function c(){try{const e=localStorage.getItem(t);return e&&e!=="null"?e:null}catch{return null}}function l(e){try{e?localStorage.setItem(t,e):localStorage.removeItem(t)}catch{}}function a(){try{localStorage.removeItem(t)}catch{}}export{a as c,c as g,l as s};

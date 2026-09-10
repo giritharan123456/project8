@@ -2,8 +2,12 @@
 node_modules/
 
 # Build output
-client/dist/
+# client/dist/ is COMMITTED on purpose: Render's server build step only runs
+# `npm ci --omit=dev`, so the prebuilt SPA must ship inside the repo for the
+# single-link Express deployment to serve it.
 dist/
+!client/dist/
+!client/dist/**
 
 # Logs
 *.log
